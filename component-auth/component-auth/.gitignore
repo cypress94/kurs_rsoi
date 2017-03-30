@@ -1,0 +1,17 @@
+*/target/
+.project
+*.iml
+.idea/
+.idea/*.*
+.idea/*
+target/
+*.md
+.settings/
+.classpath
+dependency-reduced-pom.xml
+~*
+*~
+.tern-project
+/build/
+/classes/
+.svn/
