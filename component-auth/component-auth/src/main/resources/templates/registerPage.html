@@ -1,0 +1,81 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:title="#{title}"></title>
+    <meta charset="UTF-8"/>
+
+    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../static/assets/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.css"/>
+   <link rel="stylesheet" href="../static/css/main.css"/>
+</head>
+<body>
+<div class="wrapper">
+    <form class="form-horizontal auth-data"
+          th:action="@{registration}" th:object="${user}" method="post">
+        <h2 class="text-center" th:text="#{auth.registration}"></h2>
+        <fieldset>
+       <div class="checkbox">
+            <label for="isCourier" class="hidden"></label>
+           <label><input id="isCourier" type="checkbox"  name="isCourier"
+                         checked="checked" th:placeholder="#{auth.isCourier}" th:field="*{isCourier}"  /> Вы являетесь курьером?</label>
+
+        </div>
+
+        <div class="form-group">
+            <label for="login" class="hidden"></label>
+            <input id="login" type="text"  class="form-control" name="login"
+                   th:placeholder="#{auth.login}" th:field="*{username}"
+                   required="" autofocus=""/>
+        </div>
+        <div class="form-group">
+            <label for="password" class="hidden"></label>
+            <input id="password" type="password" class="form-control" name="password"
+                   th:placeholder="#{auth.password}" th:field="*{password}"
+                   required=""/>
+        </div>
+
+        <div class="form-group">
+            <label for="firstnamereal" class="hidden"></label>
+            <input id="firstnamereal" type="text" class="form-control" name="firstnamereal"
+                   th:placeholder="#{auth.firstname}" th:field="*{firstNameReal}"
+                   required=""/>
+        </div>
+
+        <div class="form-group">
+            <label for="lastnamereal" class="hidden"></label>
+            <input id="lastnamereal" type="text" class="form-control" name="lastnamereal"
+                   th:placeholder="#{auth.lastname}" th:field="*{lastNameReal}"
+                   required=""/>
+        </div>
+
+        <div class="form-group">
+            <label for="email" class="hidden"></label>
+            <input id="email" type="text" class="form-control" name="email"
+                   th:placeholder="#{auth.email}" th:field="*{email}"
+                   required=""/>
+        </div>
+
+        <div class="form-group">
+            <label for="mobile" class="hidden"></label>
+            <input id="mobile" type="text" class="form-control" name="mobile"
+                   th:placeholder="#{auth.mobile}" th:field="*{mobile}"
+                   required=""/>
+        </div>
+
+        <div class="form-group">
+            <label for="description" class="hidden"></label>
+
+            <input  id="description" type="text" class="form-control" name="description"
+                   th:placeholder="#{auth.description}" th:field="*{Description}"
+                   required=""/>
+        </div>
+
+
+        <div class="text-center">
+            <input class="btn btn-default" type="submit" th:value="#{auth.registration}"/>
+        </div>
+        </fieldset>
+    </form>
+</div>
+</body>
+</html>

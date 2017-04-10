@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<head>
+    <title>Belyaeva</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="../static/assets/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../static/css/main.css"/>
+</head>
+<body>
+<!-- Header -->
+<div>
+    <!-- ============================================================================ -->
+    <!-- This content is only used for static prototyping purposes (natural templates)-->
+    <!-- and is therefore entirely optional.                                           -->
+    <!-- ============================================================================ -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+
+        </div>
+    </div>
+</div>
+<!-- Insert content into the layouts/layout.html -->
+<th:block layout:fragment="content">
+    <div class="hero-unit">
+        <h3>Успешная регистрация</h3>
+        <h3>ClientId:       <span th:text="${clientId}"/></h3>
+        <h3>ClientSecret:   <span th:text="${clientSecret}"/></h3>
+
+        <a href="#" th:href="@{getIndex}" class="btn btn-large btn-success">Logout</a>
+
+    </div>
+
+</th:block>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:title="#{title}"></title>
+    <meta charset="UTF-8"/>
+
+    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="../static/assets/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="../static/css/main.css"/>
+</head>
+<body>
+<div class="wrapper">
+
+    <form class="form-horizontal auth-data"
+          th:action="@{getIndex}" method="get">
+        <h2 class="text-center" th:text="#{auth.userinfo}"></h2>
+
+        <div class="form-group">
+            <label for="name" class="hidden"></label>
+            <input id="name" type="text" class="form-control" name="firstname"
+                   th:text="${name}"
+                   required="" autofocus=""/>
+        </div>
+        <div class="form-group">
+            <label for="email" class="hidden"></label>
+            <input id="email" type="text" class="form-control" name="email"
+                   th:text="${email}"
+                   required="" autofocus=""/>
+        </div>
+
+        <div class="text-center">
+            <input class="btn btn-default" type="submit" th:value="#{auth.logout}"/>
+        </div>
+    </form>
+</div>
+</body>
+</html>
