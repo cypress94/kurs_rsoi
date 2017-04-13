@@ -1,28 +1,54 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
 
 <head>
     <meta charset="UTF-8">
     <title>Belyaeva</title>
 
-    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="../static/assets/font-awesome/css/font-awesome.min.css"/>
-    <link rel="stylesheet" href="../static/assets/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="../static/css/main.css"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"
+          rel="stylesheet" media="screen"/>
+    <link href="../static/css/core.css"
+          th:href="@{/css/core.css}"
+          rel="stylesheet" media="screen"/>
+    <script src="http://cdn.jsdelivr.net/webjars/jquery/2.2.1/jquery.min.js"
+            th:src="@{/webjars/jquery/2.2.1/jquery.min.js}"></script>
 
 </head>
 <body>
+<th:block layout:fragment="content">
 <h1>Заказ успешно создан</h1>
-<div class="wrapper">
-    <p class="info">Имя посылки: <span th:text="${delivery.name}">посылка</span>.</p>
-    <p class="info">Описание посылки: <span th:text="${delivery.description}">описание</span>.</p>
-</div>
+
 <dl class="dl-horizontal">
     <dt>Имя посылки:</dt>
     <dd><span th:text="${delivery.name}">посылка</span></dd>
-    <dt>Описание посылки:</dt>
+    <dt>Вес(кг):</dt>
+    <dd><span th:text="${delivery.weight}">вес</span></dd>
+    <dt>Ширина(м):</dt>
+    <dd><span th:text="${delivery.width}">ширина</span></dd>
+    <dt>Высота(м):</dt>
+    <dd><span th:text="${delivery.height}">высота</span></dd>
+    <dt>Глубина(м):</dt>
+    <dd><span th:text="${delivery.deep}">глубина</span></dd>
+    <dt>Время доставки:</dt>
+    <dd><span th:text="${delivery.timeDelivery}">время доставки</span></dd>
+    <dt th:width="100" idth>Адрес (начального пункта):</dt>
+    <dd><span th:text="${delivery.addressStart}">адрес</span></dd>
+    <dt>Адрес (конечного пункта):</dt>
+    <dd><span th:text="${delivery.addressFinish}">адрес</span></dd>
+    <dt>Описание:</dt>
     <dd><span th:text="${delivery.description}">описание</span></dd>
 </dl>
+    <div class="hero-unit">
 
+        <p>
+            Стоимость посылки  <span th:text="${cost}"/>
+        </p>
+    </div>
+</th:block>
 </body>
 </html>

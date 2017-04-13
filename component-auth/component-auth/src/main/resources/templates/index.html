@@ -14,7 +14,7 @@
           th:action="@{/login/check-auth}" th:object="${user}" method="post">
 
         <h2 class="text-center" th:text="#{auth.title}"></h2>
-        <p th:if="${okMessage}" class="info">Регистрация прошла успешна!</p>
+        <p th:if="${okMessage}" class="info">Регистрация прошла успешно!</p>
         <p th:if="${errorMessage}" class="info">Регистрация не прошла, проверьте правильность введенных данных или повторите попытку позже.</p>
         <div class="form-group">
             <label for="login" class="hidden"></label>

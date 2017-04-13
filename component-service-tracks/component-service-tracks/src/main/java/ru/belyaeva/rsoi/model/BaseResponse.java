@@ -7,10 +7,7 @@ import lombok.Data;
  */
 @Data
 public class BaseResponse {
-    public static String RESPONSE_OK = "OK";
     protected Boolean errorCode;
     protected String errorMessage;
-
-    public BaseResponse(Boolean a, String msg) {errorCode = a; errorMessage = msg;};
 
 }

@@ -62,12 +62,12 @@ public class DeliveryController {
 
     @RequestMapping(value = "/{deliveryId}/tracks/{trackId}", method = RequestMethod.POST)
     @ResponseBody
-    public void putTrackToDelivery(
+    public DeliveryResponse putTrackToDelivery(
             @PathVariable("deliveryId") Long deliveryId,
             @PathVariable("trackId") Long trackId,
             @RequestBody RequestNull request)
     {
-        DeliveryResponse deliveryResponse = deliveryServiceImpl.putToDelivery(deliveryId, trackId);
+        return deliveryServiceImpl.putToDelivery(deliveryId, trackId);
     }
     //  "/deleteFromOrder/{orderId}/{productId}"
     @RequestMapping(value = "/{deliveryId}/tracks/{trackId}", method = RequestMethod.DELETE)

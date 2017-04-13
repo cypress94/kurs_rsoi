@@ -23,11 +23,11 @@ public class AggregationServiceImpl implements AggregationService {
     private static Logger logger = LoggerFactory.getLogger(AggregationServiceImpl.class);
 
     private final String URL_CHECK_TOKEN = "http://localhost:8080/oauth2/checkToken";
+    private final String URL_GET_USER_INFO = "http://localhost:8080/user/information";
     private final String URL_SERVICE_DELIVERIES = "http://localhost:8082/deliveryService/deliveries";
     private final String URL_SERVICE_TRACKS = "http://localhost:8083/trackService/tracks";
     private final String URL_SERVICE_BILLINGS = "http://localhost:8084/billingService";
     private final String CREATE_DELIVERY = "/create";
-
 
     @SneakyThrows
     @Override
@@ -37,7 +37,13 @@ public class AggregationServiceImpl implements AggregationService {
         if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
             throw new IllegalAccessException("Token isn`t valid");
         }
-// добавить проверку на курьера
+
+        // проверка на курьера
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+      //  if (isCourier)
+      //      return null;
+
         CreateDeliveryRequest createDeliveryRequest = new CreateDeliveryRequest();
         createDeliveryRequest.setUserId(checkTokenResponse.getUserId());
         createDeliveryRequest.setName(delivery.getName());
@@ -71,9 +77,16 @@ public class AggregationServiceImpl implements AggregationService {
         if (!deliveryResponse.getCode()) {
             throw new Exception(deliveryResponse.getMessage());
         }
-        Delivery delivery = deliveryResponse.getDelivery();
-
         DeliveryFull deliveryFull = new DeliveryFull();
+        Delivery delivery = deliveryResponse.getDelivery();
+        // Проверка на принадлежность заказа пользователю
+        if (delivery.getUserId() != checkTokenResponse.getUserId())
+        {// ошибка, у пользователя нет такого заказа
+            deliveryFull.setCode(false);
+            deliveryFull.setMessage("access error");
+            return deliveryFull;
+        }
+
         if (delivery.getTracks() != null && !delivery.getTracks().isEmpty()) {
             LongIdListRequest longIdListRequest = new LongIdListRequest();
             longIdListRequest.setIds(deliveryResponse.getDelivery().getTracks());
@@ -92,9 +105,15 @@ public class AggregationServiceImpl implements AggregationService {
             }*/
             deliveryFull.setTracks(tracks);
         }
-
-        BillingResponse billingResponse = httpSender.getBilling(URL_SERVICE_BILLINGS + "/user/" + checkTokenResponse.getUserId() + "/billing/" + delivery.getBilling());
-        deliveryFull.setBilling(billingResponse);
+        if (delivery.getBilling() != null) {
+            BillingResponse billingResponse = httpSender.getBilling(URL_SERVICE_BILLINGS + "/user/" + checkTokenResponse.getUserId() + "/billing/" + delivery.getBilling());
+            deliveryFull.setBilling(billingResponse);
+        }else{
+            BillingResponse billingResponse = new BillingResponse();
+            billingResponse.setCode(false);
+            billingResponse.setMessage("");
+            deliveryFull.setBilling(billingResponse);
+        }
         deliveryFull.setId(delivery.getId());
         deliveryFull.setUserId(delivery.getUserId());
         deliveryFull.setPaid(delivery.getPaid());
@@ -107,7 +126,8 @@ public class AggregationServiceImpl implements AggregationService {
         deliveryFull.setAddressStart(delivery.getAddressStart());
         deliveryFull.setAddressFinish(delivery.getAddressFinish());
         deliveryFull.setDescription(delivery.getDescription());
-
+        deliveryFull.setCode(true);
+        deliveryFull.setMessage("");
 
         logger.info("get Delivery");
         return deliveryFull;
@@ -135,16 +155,25 @@ public class AggregationServiceImpl implements AggregationService {
         if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
             throw new IllegalAccessException("Token isn`t valid");
         }
+        // проверка на курьера
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+        if (!isCourier)
+        {
+            TrackResponse trackResponse = new TrackResponse();
+
+            trackResponse.setCode(false);
+            trackResponse.setMessage("access privilege error");
+            return trackResponse;
+        }
+
         TrackResponse trackResponse = httpSender.createTrack(URL_SERVICE_TRACKS + "/", track);
         if (trackResponse == null || !trackResponse.getCode()) {
             throw new Exception(trackResponse.getMessage());
         }
 
         // добавление трека(сообщения) в заказ
-        DeliveryResponse deliveryResponse = httpSender.putToDelivery(URL_SERVICE_DELIVERIES + "/" + deliveryId + "/" + trackResponse.getId());
-        if (deliveryResponse == null || !deliveryResponse.getCode()) {
-            throw new Exception(deliveryResponse.getMessage());
-        }
+        DeliveryResponse deliveryResponse = httpSender.putToDelivery(URL_SERVICE_DELIVERIES + "/" + deliveryId + "/tracks/" + trackResponse.getId());
         logger.info("put Track to Delivery");
 
         return trackResponse;
@@ -259,6 +288,16 @@ public class AggregationServiceImpl implements AggregationService {
             return billingResponse;
         }
     }
+    @SneakyThrows
+    @Override
+    public BaseResponse createUserBilling(UserBillingInfo user, String token){
+        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
+        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
+        ///user/{userId}/create
+        user.setUserId(checkTokenResponse.getUserId());
+        BaseResponse baseResponse =  httpSender.createUserBilling(URL_SERVICE_BILLINGS + "/user/" + checkTokenResponse.getUserId() +"/create", user );
+        return baseResponse;
+    }
 
     @SneakyThrows
     @Override
@@ -337,9 +376,10 @@ public class AggregationServiceImpl implements AggregationService {
         return httpSender.getToken(url);
     }
 
-    public void getUser()
+    public void getUser_with_auth()
     {
         String url = "http://localhost:8080/";
-        httpSender.getUser(url);
+        httpSender.getUser_with_auth(url);
     }
+
 }

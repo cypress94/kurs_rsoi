@@ -35,7 +35,6 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public BaseResponse createUserBilling(UserBillingInfo userBillingInfo) {
         UserEntity userEntity = userRepository.findByUserId(userBillingInfo.getUserId());
-        BaseResponse baseResponse;
 
         if (userEntity != null) {// update userbilling
             userEntity.setMeansPayment(userBillingInfo.getMeansPayment());
@@ -43,7 +42,12 @@ public class BillingServiceImpl implements BillingService {
             userEntity.setCVV(userBillingInfo.getCVV());
             userEntity.setSummary(userBillingInfo.getSummary());
             userRepository.save(userEntity);
-            baseResponse = new BaseResponse(true, "update data");
+
+            BaseResponse baseResponse = new BaseResponse();
+            baseResponse.setErrorCode(true);
+            baseResponse.setErrorMessage("update data");
+            return baseResponse;
+
         } else {// create new billing user
             UserEntity new_userEntity = new UserEntity();
             new_userEntity.setMeansPayment(userBillingInfo.getMeansPayment());
@@ -51,11 +55,15 @@ public class BillingServiceImpl implements BillingService {
             new_userEntity.setCVV(userBillingInfo.getCVV());
             new_userEntity.setSummary(userBillingInfo.getSummary());
             new_userEntity.setUserId(userBillingInfo.getUserId());
-            baseResponse = new BaseResponse(true, "create data");
+
             userRepository.save(new_userEntity);
+
+            BaseResponse baseResponse = new BaseResponse();
+            baseResponse.setErrorCode(true);
+            baseResponse.setErrorMessage("create data");
+            return baseResponse;
         }
 
-        return baseResponse;
     }
     @SneakyThrows
     @Override
@@ -84,7 +92,12 @@ public class BillingServiceImpl implements BillingService {
 
         UserEntity userEntity = userRepository.findByUserId(UserId);
         if (userEntity == null)
-            throw new EntityNotFoundException("UserBilling not found in db");
+        {
+            BillingResponse billingResponse = new BillingResponse();
+            billingResponse.setCode(false);
+            billingResponse.setMessage("error user billing");
+            return billingResponse;
+        }
 
         BillingResponse billingResponse = new BillingResponse();
         // Проверка средств пользователя

@@ -45,9 +45,9 @@ public class HttpSender {
 
 
     public DeliveryResponse putToDelivery(String url){
-        /*RequestNull requestNull = new RequestNull();
-        restTemplate.put(url, requestNull);*/
-        return restTemplate.postForObject(url, null, DeliveryResponse.class);
+        RequestNull requestNull = new RequestNull();
+       // restTemplate.put(url, requestNull);
+        return restTemplate.postForObject(url, requestNull, DeliveryResponse.class);
 
     }
 
@@ -65,7 +65,9 @@ public class HttpSender {
     public BillingResponse getBilling(String url){
         return restTemplate.getForObject(url, BillingResponse.class);
     }
-
+    public BaseResponse createUserBilling(String url, UserBillingInfo userBillingInfo){
+        return restTemplate.postForObject(url, userBillingInfo, BaseResponse.class);
+    }
     public void getAutorization(String url)
     {
         restTemplate.getForObject(url, ModelAndView.class);
@@ -81,9 +83,13 @@ public class HttpSender {
         return restTemplate.postForObject(url, null, String.class);
     }
 
-    public void getUser(String url)
+    public UserInfoResponse getUser(String url, String token)
     {
-        restTemplate.getForObject(url, null);
+       return restTemplate.postForObject(url, token, UserInfoResponse.class);
+    }
+    public void getUser_with_auth(String url)
+    {
+        restTemplate.getForObject(url, UserInfoResponse.class);
     }
 /*
     public BillingResponse createBilling(String url){

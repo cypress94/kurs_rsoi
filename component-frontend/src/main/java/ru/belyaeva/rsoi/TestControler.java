@@ -3,7 +3,7 @@ package ru.belyaeva.rsoi;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ru.belyaeva.rsoi.model.Delivery;
+import ru.belyaeva.rsoi.model.*;
 
 
 import com.fasterxml.jackson.databind.util.JSONPObject;
@@ -15,8 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.belyaeva.rsoi.factories.ConnectionFactory;
-import ru.belyaeva.rsoi.model.DeliveryResponse;
-import ru.belyaeva.rsoi.model.OAuth2Bean;
 import ru.belyaeva.rsoi.factories.OAuthBeansFactory;
 import ru.belyaeva.rsoi.WorkWithHTTP;
 
@@ -30,6 +28,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -139,7 +138,6 @@ public class TestControler {
 
     }
 
-
     @RequestMapping(value = "/setDelivery", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin
     @ResponseBody
@@ -169,6 +167,12 @@ public class TestControler {
         String profileResponse = http.readFromHttpConnection(httpURLConnection);
         StringBuilder urlStringBuilder = new StringBuilder();
         String response = http.writeAndReadFromHttpConnection(httpURLConnection, urlStringBuilder.toString());
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Delivery create: access privilege error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage");
+            return nmav;
+        }
         logger.info("Delivery has create: {}", profileResponse);
 
       /*  ModelAndView newModelAndView = new ModelAndView("deliveryPage");
@@ -179,41 +183,235 @@ public class TestControler {
         JsonNode node = objectMapper.readTree( profileResponse );
         Delivery delivery = objectMapper.convertValue(node, Delivery.class);
 
-        ModelAndView nmav = new ModelAndView("deliveryPage");
+        ModelAndView nmav = new ModelAndView("deliveryFullPage");
         nmav.addObject("delivery", delivery);
-
+        nmav.addObject("cost", getCost(delivery.getId()));
+        nmav.addObject("haveBilling", false);
+        nmav.addObject("haveTracks", false);
         return nmav;
-/*
-        ModelAndView nmav = new ModelAndView("response");
-        nmav.addObject("response", profileResponse);
-        return nmav;
-*/
     }
 
-    @RequestMapping(value = "/setProduct1toOrder1", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/delivery/{deliveryId}/track/create", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin
     @ResponseBody
-    public ModelAndView setProduct() {
-
+    public ModelAndView setTrack(
+    @PathVariable("deliveryId") Long deliveryId)
+            throws ServletException, IOException{
         ConnectionFactory connectionFactory = new ConnectionFactory();
         OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
         OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
-        oAuth2Bean.setProfileEndpoint("http://localhost:8090/order/1/product/1");
-    //?product_name=dress&price=2000
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/delivery/" + deliveryId +"/track?" +
+                                "track_message=Какой-то_текст");
+
         HttpURLConnection httpURLConnection =
-                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "put");
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "post");
         httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
         logger.info("Request to remote system to set order user with access token: {}", accessToken);
 
         String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Track create: Server error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
 
-        logger.info("Product 1 in order 1 is created: {}", profileResponse);
-
-        ModelAndView nmav = new ModelAndView("response");
-        nmav.addObject("response", profileResponse);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        TrackResponse trackResponse = objectMapper.convertValue(node, TrackResponse.class);
+        if (!trackResponse.getCode())
+        {
+            logger.info("Track create: access privilege error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка прав доступа");
+            return nmav;
+        }
+        ModelAndView nmav = new ModelAndView("trackPage");
+        nmav.addObject("track", trackResponse);
         return nmav;
-
     }
+
+    public Double getCost(Long deliveryId)
+            throws ServletException, IOException{
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
+        OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/delivery/" + deliveryId + "/cost");
+
+        HttpURLConnection httpURLConnection =
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "get");
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        logger.info("Request to remote system to set order user with access token: {}", accessToken);
+
+        String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        return objectMapper.convertValue(node, Double.class);
+    }
+
+    @RequestMapping(value = "/delivery/{deliveryId}", produces = "application/json", method = RequestMethod.GET)
+    @CrossOrigin
+    @ResponseBody
+    public ModelAndView getFullDelivery(
+            @PathVariable("deliveryId") Long deliveryId)
+            throws ServletException, IOException{
+
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
+        OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/delivery/" + deliveryId);
+
+        HttpURLConnection httpURLConnection =
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "get");
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        logger.info("Request to remote system to set order user with access token: {}", accessToken);
+
+        String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Track create: Server error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        DeliveryFull deliveryFull = objectMapper.convertValue(node, DeliveryFull.class);
+        if (deliveryFull == null )
+        {
+            logger.info("get delivery: error of server");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+        if (!deliveryFull.getCode())
+        {// ошибка прав доступа
+            logger.info("get delivery: error of server");
+            ModelAndView nmav = new ModelAndView("serverError");
+           // nmav.addObject("errorcode", -1);
+            nmav.addObject("errormessage", "ошибка прав доступа");
+
+            return nmav;
+        }
+        ModelAndView nmav = new ModelAndView("deliveryFullPage");
+        nmav.addObject("delivery", deliveryFull);
+
+        if ( !deliveryFull.getPaid() )
+            nmav.addObject("haveBilling", false);
+        else
+            nmav.addObject("haveBilling", true);
+        if (deliveryFull.getTracks() != null && !deliveryFull.getTracks().isEmpty())
+            nmav.addObject("haveTracks", true);
+        else
+            nmav.addObject("haveTracks", false);
+        nmav.addObject("cost", getCost(deliveryId));
+
+        return nmav;
+    }
+    // Начальная регистрация пользователя (выдача формы заполнения инфы)
+    @RequestMapping(value = "/billing/user/create", produces = "application/json", method = RequestMethod.GET)
+    @CrossOrigin
+    @ResponseBody
+    public ModelAndView createUserBilling()
+    {
+        UserBillingInfo userBillingInfo = new UserBillingInfo();
+
+        ModelAndView nmav = new ModelAndView("createUserBilling");
+        nmav.addObject("user", userBillingInfo);
+        return nmav;
+    }
+    // Регистрация пользователя (окончательная)
+    @RequestMapping(value = "delivery/{id}/user/registration", method = RequestMethod.POST)
+    public ModelAndView createUserBilling_step2(
+            @PathVariable("id") Long deliveryId,
+            @ModelAttribute UserBillingInfo user, Model model)
+            throws ServletException, IOException
+    {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
+        OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/billing/user/create?" +
+                "means_payment=" + user.getMeansPayment() + "&" +
+                "card_number="   + user.getCardNumber()   + "&" +
+                "cvv="           + user.getCVV()          + "&" +
+                "summary="       + user.getSummary());
+
+        HttpURLConnection httpURLConnection =
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "post");
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        logger.info("Request to remote system to set order user with access token: {}", accessToken);
+
+        String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Track create: Server error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+           // return nmav;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        BaseResponse baseResponse = objectMapper.convertValue(node, BaseResponse.class);
+        if (baseResponse == null)
+        {
+            logger.info("get delivery: error of server");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+        return executeBilling(deliveryId);
+    }
+
+    @RequestMapping(value = "/delivery/{deliveryId}/billing", produces = "application/json", method = RequestMethod.GET)
+    @CrossOrigin
+    @ResponseBody
+    public ModelAndView executeBilling(
+            @PathVariable("deliveryId") Long deliveryId)
+            throws ServletException, IOException{
+
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
+        OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/delivery/" + deliveryId + "/billing");
+
+        HttpURLConnection httpURLConnection =
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "post");
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        logger.info("Request to remote system to set order user with access token: {}", accessToken);
+
+        String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Track create: Server error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        BillingResponse billingResponse = objectMapper.convertValue(node, BillingResponse.class);
+        if (billingResponse == null)
+        {
+            logger.info("get delivery: error of server");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+        if (!billingResponse.getCode()/*&& billingResponse.getMessage() == "error user billing"*/)
+        {// пользователь не зарегестрирован в системе оплаты
+            ModelAndView nmav = createUserBilling();
+            return nmav;
+        }
+
+        ModelAndView nmav = new ModelAndView("billingPage");
+        nmav.addObject("billingTime", billingResponse.getBilling().getBillingTime());
+
+        nmav.addObject("cost", getCost(deliveryId));
+        return nmav;
+    }
+
+
+
 
     @RequestMapping(value = "/updateOrder1", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin
@@ -289,6 +487,7 @@ public class TestControler {
         return nmav;
 
     }
+    /*
     @RequestMapping(value = "/getOrder1", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin
     @ResponseBody
@@ -336,7 +535,7 @@ public class TestControler {
         nmav.addObject("response", profileResponse);
         return nmav;
 
-    }
+    }*/
 
     @RequestMapping(value = "/getProducts", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin

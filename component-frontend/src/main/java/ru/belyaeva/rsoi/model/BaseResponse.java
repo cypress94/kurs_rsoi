@@ -7,7 +7,8 @@ import lombok.Data;
  */
 @Data
 public class BaseResponse {
-    protected Boolean errorCode;
-    protected String errorMessage;
+    private Boolean errorCode;
+    private String errorMessage;
+
 
 }

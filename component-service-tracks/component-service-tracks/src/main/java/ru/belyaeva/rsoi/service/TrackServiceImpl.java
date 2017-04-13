@@ -102,8 +102,10 @@ public class TrackServiceImpl implements TrackService {
         }
         trackRepository.delete(trackId);
 
-
-        return new BaseResponse(true, "");
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(true);
+        baseResponse.setErrorMessage("");
+        return baseResponse;
     }
 
 

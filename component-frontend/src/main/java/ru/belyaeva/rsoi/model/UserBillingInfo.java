@@ -10,8 +10,12 @@ import lombok.Data;
 public class UserBillingInfo {
 
     private String meansPayment;
+
     private String cardNumber;
+
     private String CVV;
+
     private Double Summary;
+
     private Long UserId;
 }

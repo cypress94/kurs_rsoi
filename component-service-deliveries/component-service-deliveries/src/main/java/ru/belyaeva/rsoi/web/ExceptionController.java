@@ -20,25 +20,38 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EntityNotFoundException.class)
     public BaseResponse notFound(EntityNotFoundException exception) {
-        return new BaseResponse(false, exception.getMessage());
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(false);
+        baseResponse.setErrorMessage(exception.getMessage());
+        return baseResponse;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(IllegalArgumentException.class)
     public BaseResponse exception(IllegalArgumentException exception) {
-        return new BaseResponse(false, exception.getMessage());
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(false);
+        baseResponse.setErrorMessage(exception.getMessage());
+        return baseResponse;
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(IllegalAccessException.class)
     public BaseResponse exception(IllegalAccessException exception) {
-        return new BaseResponse(false, exception.getMessage());
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(false);
+        baseResponse.setErrorMessage(exception.getMessage());
+        return baseResponse;
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public BaseResponse exception(Exception exception) {
-        return new BaseResponse(false, exception.getMessage());
+    public BaseResponse exception(Exception exception)
+    {
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(false);
+        baseResponse.setErrorMessage(exception.getMessage());
+        return baseResponse;
     }
 
 

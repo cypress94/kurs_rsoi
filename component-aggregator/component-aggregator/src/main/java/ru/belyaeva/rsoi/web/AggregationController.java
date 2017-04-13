@@ -3,13 +3,12 @@ package ru.belyaeva.rsoi.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import ru.belyaeva.rsoi.model.Track;
+import ru.belyaeva.rsoi.model.*;
 import ru.belyaeva.rsoi.service.AggregationService;
-import ru.belyaeva.rsoi.model.Delivery;
-import ru.belyaeva.rsoi.model.DeliveryFull;
-import ru.belyaeva.rsoi.model.TrackResponse;
-import ru.belyaeva.rsoi.model.BillingResponse;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,7 +52,7 @@ public class AggregationController {
     @RequestMapping(value = "/delivery/{id}",
             method = RequestMethod.GET)
     @ResponseBody
-    public DeliveryFull getOrder(
+    public DeliveryFull getDelivery(
             @PathVariable("id") Long orderId,
             @RequestHeader(value = "Authorization") String token) {
 
@@ -72,11 +71,16 @@ public class AggregationController {
 
     @RequestMapping(value = "/delivery/{deliveryId}/track", method = RequestMethod.POST)
     @ResponseBody
-    public TrackResponse createTrack(@RequestBody Track track,
+    public TrackResponse createTrack(
+            @RequestParam(value = "track_message") String trackMessage,
             @PathVariable("deliveryId") Long deliveryId,
             @RequestHeader(value = "Authorization") String token) {
 
-        return aggregationService.createTrack(token,deliveryId, track);
+        Track track = new Track();
+        track.setTrackMessage(trackMessage);
+        // время сообщение устанавливается в сервисе трека
+
+        return aggregationService.createTrack(token, deliveryId, track);
     }
     @RequestMapping(value = "/delivery/{deliveryId}/track/{trackId}", method = RequestMethod.DELETE)
     @ResponseBody
@@ -129,6 +133,24 @@ public class AggregationController {
     }
 */
 
+    @RequestMapping(value = "billing/user/create", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseResponse createUserBilling(
+            @RequestParam(value = "means_payment") String meansPayment,
+            @RequestParam(value = "card_number") String cardNumber,
+            @RequestParam(value = "cvv") String CVV,
+            @RequestParam(value = "summary") Double Summary,
+            @RequestHeader(value = "Authorization") String token) {
+
+        UserBillingInfo userBillingInfo = new UserBillingInfo();
+        userBillingInfo.setMeansPayment(meansPayment);
+        userBillingInfo.setCardNumber(cardNumber);
+        userBillingInfo.setCVV(CVV);
+        userBillingInfo.setSummary(Summary);
+
+        return aggregationService.createUserBilling(userBillingInfo, token);
+    }
+
     @RequestMapping(value = "/delivery/{id}/billing",
             method = RequestMethod.POST)
     @ResponseBody
@@ -180,9 +202,9 @@ public class AggregationController {
     @RequestMapping(value = "/",
             method = RequestMethod.GET)
     @ResponseBody
-    public void getUser() {
+    public void getUser_with_auth() {
 
-        aggregationService.getUser();
+        aggregationService.getUser_with_auth();
     }
 
 }

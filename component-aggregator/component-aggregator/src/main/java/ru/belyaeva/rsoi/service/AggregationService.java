@@ -4,8 +4,10 @@ import org.springframework.stereotype.Service;
 import ru.belyaeva.rsoi.model.Delivery;
 import ru.belyaeva.rsoi.model.DeliveryFull;
 import ru.belyaeva.rsoi.model.BillingResponse;
+import ru.belyaeva.rsoi.model.UserBillingInfo;
 import ru.belyaeva.rsoi.model.TrackResponse;
 import ru.belyaeva.rsoi.model.Track;
+import ru.belyaeva.rsoi.model.BaseResponse;
 
 import java.util.List;
 
@@ -45,6 +47,8 @@ public interface AggregationService {
     void deleteTrack(String token, Long deliveryId, Long trackId);
     //+
     BillingResponse executeBilling(Long deliveryId, String token);
+    //
+    BaseResponse createUserBilling(UserBillingInfo user, String token);
     //+
     Double getCostOfDelivery(Long deliveryId, String token);
     //+
@@ -54,7 +58,7 @@ public interface AggregationService {
 
     String getToken(String client_id, String client_secret, String redirect_uri, String code);
 
-    void getUser();
+    void getUser_with_auth();
 
     //   Delivery updateOrder (Long orderId, String sellerName, String shopName, String token);
 

@@ -54,19 +54,34 @@
 </th:block>-->
 
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Belyaeva</title>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+    <head>
+        <title>Belyaeva</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+              th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"
+              rel="stylesheet" media="screen" />
+        <link href="../static/css/core.css"
+              th:href="@{/css/core.css}"
+              rel="stylesheet" media="screen" />
+        <script src="http://cdn.jsdelivr.net/webjars/jquery/2.2.1/jquery.min.js"
+                th:src="@{/webjars/jquery/2.2.1/jquery.min.js}"></script>
+    </head>
 <body>
-<h1>Успешная авторизация</h1>
-<p>
-    Здравствуйте  <span th:text="${name}"/>,<hr>
-    Ваша почта <span th:text="${email}"/>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    </div>
+<th:block layout:fragment="content">
+  <div class="hero-unit">
+    <h1>Успешная авторизация</h1>
+    <p>
+        Здравствуйте  <span th:text="${name}"/>,<hr>
+        Ваша почта <span th:text="${email}"/>
+    </p>
+  </div>
 
-</p>
+</th:block>
 
 </body>
 </html>
