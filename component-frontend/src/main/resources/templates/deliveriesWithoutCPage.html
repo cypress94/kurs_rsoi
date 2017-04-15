@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ваши заказы</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"
+          rel="stylesheet" media="screen"/>
+    <link href="../static/css/core.css"
+          th:href="@{/css/core.css}"
+          rel="stylesheet" media="screen"/>
+    <script src="http://cdn.jsdelivr.net/webjars/jquery/2.2.1/jquery.min.js"
+            th:src="@{/webjars/jquery/2.2.1/jquery.min.js}"></script>
+
+</head>
+<body>
+<th:block layout:fragment="content">
+    <h1>Незарезеровированные заказы</h1>
+
+    <hr color="green" size="5">
+    <hr>
+    <div  class="span6" th:if="${haveDeliveries}">
+
+        <table>
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Время доставки</th>
+                <th></th>
+            </tr>
+            <tr th:each="delivery : ${deliveries}" >
+                <td th:text="${delivery.name}" th:width="150"></td>
+                <td th:text="${delivery.description}" th:width="450" th:height="50"></td>
+                <td th:text="${delivery.timeDelivery}" th:width="150"></td>
+                <td><a th:href="@{../../../../../../../delivery/{deliveryId}(deliveryId=${delivery.id})}" th:width="150">Подробное описание</a></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="text-center" th:if="${haveDeliveries == false}">
+        <a> На данный момент свободных заказов нет.
+            Повторите запрос позже.
+        </a>
+    </div>
+
+</th:block>
+</body>
+</html>

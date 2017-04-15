@@ -8,6 +8,7 @@ import ru.belyaeva.rsoi.model.UserBillingInfo;
 import ru.belyaeva.rsoi.model.TrackResponse;
 import ru.belyaeva.rsoi.model.Track;
 import ru.belyaeva.rsoi.model.BaseResponse;
+import ru.belyaeva.rsoi.model.DeliveryResponse;
 
 import java.util.List;
 
@@ -38,7 +39,15 @@ public interface AggregationService {
     //+
     Delivery createDelivery(String token, Delivery delivery);
     //+
-    List<Delivery> getDeliveries (String token, Long page, Long size);
+    List<Delivery> getDeliveriesOfUser (String token, Long page, Long size);
+    //+
+    List<Delivery> getDeliveriesWithoutCourier(String token, Long page, Long size);
+    //+
+    Boolean getUserType(String token);
+
+    Long getUserId( String token);
+    //+
+    DeliveryFull reservedDeliveryByCourier(String token, Long deliveryId);
     //+
     TrackResponse getTrack(String token, Long id);
     //+

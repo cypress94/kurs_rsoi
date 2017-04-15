@@ -1,0 +1,43 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Создание сообщения</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"
+          rel="stylesheet" media="screen"/>
+    <link href="../static/css/core.css"
+          th:href="@{/css/core.css}"
+          rel="stylesheet" media="screen"/>
+    <script src="http://cdn.jsdelivr.net/webjars/jquery/2.2.1/jquery.min.js"
+            th:src="@{/webjars/jquery/2.2.1/jquery.min.js}"></script>
+
+</head>
+<body>
+<th:block layout:fragment="content">
+    <h1>Создание сообщения</h1>
+    <div class="wrapper">
+        <form class="form-horizontal auth-data"
+              th:action="@{/delivery/{deliveryId}/track/create/full(deliveryId=${deliveryId})}" th:object="${track}"  method="post">
+
+            <fieldset>
+                <div class="form-group">
+                    <label for="trackMessage" class="hidden"></label>
+                    <input id="trackMessage" type="text"  class="form-control" name="trackMessage"
+                           th:placeholder="Текст" th:field="*{trackMessage}"
+                           required="" autofocus=""/>
+                </div>
+
+                <div class="text-center">
+                    <input class="btn btn-default" type="submit" th:value="Создать"/>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

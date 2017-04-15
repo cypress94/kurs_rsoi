@@ -1,0 +1,98 @@
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Создание заказа</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"
+          rel="stylesheet" media="screen"/>
+    <link href="../static/css/core.css"
+          th:href="@{/css/core.css}"
+          rel="stylesheet" media="screen"/>
+    <script src="http://cdn.jsdelivr.net/webjars/jquery/2.2.1/jquery.min.js"
+            th:src="@{/webjars/jquery/2.2.1/jquery.min.js}"></script>
+
+</head>
+<body>
+<th:block layout:fragment="content">
+    <h1>Создание заказа на доставку</h1>
+
+    <div class="wrapper">
+        <form class="form-horizontal auth-data"
+              th:action="@{/delivery/create/full}" th:object="${delivery}" method="post">
+            <fieldset>
+                <div class="form-group">
+                    <label for="Name" class="hidden"></label>
+                    <input id="Name" type="text"  class="form-control" name="Name"
+                           th:placeholder="Название" th:field="*{Name}"
+                           required="" autofocus=""/>
+                </div>
+                <div class="form-group">
+                    <label for="Weight" class="hidden"></label>
+                    <input id="Weight" type="text" class="form-control" name="Weight"
+                           th:placeholder="Вес_посылки_в_кг" th:field="*{Weight}"
+                           required=""/>
+                </div>
+
+                <div class="form-group">
+                    <label for="Height" class="hidden"></label>
+                    <input id="Height" type="text" class="form-control" name="Height"
+                           th:placeholder="Высота_посылки_в_м" th:field="*{Height}"
+                           required=""/>
+                </div>
+
+                <div class="form-group">
+                    <label for="Width" class="hidden"></label>
+                    <input id="Width" type="text" class="form-control" name="Width"
+                           th:placeholder="Ширина_посылки_в_метрах" th:field="*{Width}"
+                           required=""/>
+                </div>
+
+                <div class="form-group">
+                    <label for="Deep" class="hidden"></label>
+                    <input id="Deep" type="text" class="form-control" name="Deep"
+                           th:placeholder="Глубина_посылки_в_метрах" th:field="*{Deep}"
+                           required=""/>
+                </div>
+
+                <div class="form-group">
+                    <label for="TimeDelivery" class="hidden"></label>
+                    <input id="TimeDelivery" type="text" class="form-control" name="TimeDelivery"
+                           th:placeholder="Ориентировачное_время_доставки" th:field="*{TimeDelivery}"
+                           required=""/>
+                </div>
+
+                <div class="form-group">
+                <label for="AddressStart" class="hidden"></label>
+                <input id="AddressStart" type="text" class="form-control" name="AddressStart"
+                       th:placeholder="Адрес_пункта_выдачи_посылки" th:field="*{AddressStart}"
+                       required=""/>
+                </div>
+
+                <div class="form-group">
+                    <label for="AddressFinish" class="hidden"></label>
+                    <input id="AddressFinish" type="text" class="form-control" name="AddressFinish"
+                           th:placeholder="Адрес_пункта_назначения_посылки" th:field="*{AddressFinish}"
+                           required=""/>
+                </div>
+
+                <div class="form-group">
+                    <label for="Description" class="hidden"></label>
+                    <input id="Description" type="text" class="form-control" name="Description"
+                           th:placeholder="Описание_посылки" th:field="*{Description}"
+                           required=""/>
+                </div>
+
+                <div class="text-center">
+                    <input class="btn btn-default" type="submit" th:value="Создать_заказ_на_доставку"/>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

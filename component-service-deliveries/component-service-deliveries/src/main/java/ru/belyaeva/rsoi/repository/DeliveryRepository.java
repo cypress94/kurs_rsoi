@@ -11,5 +11,6 @@ import java.util.List;
 public interface DeliveryRepository extends CrudRepository<DeliveryEntity,Long> {
 
     List<DeliveryEntity> findByUserId(Long UserId);
+    List<DeliveryEntity> findByCourierId(Long CourierId);
 
 }

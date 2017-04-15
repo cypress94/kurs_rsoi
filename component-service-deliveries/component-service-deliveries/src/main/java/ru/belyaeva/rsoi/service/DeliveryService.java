@@ -14,6 +14,10 @@ public interface DeliveryService {
 
     DeliveryListResponse getDeliveries(Long userId, Long page, Long size);
 
+    DeliveryListResponse getDeliveriesOfCourier(Long courierId, Long page, Long size);
+
+    DeliveryListResponse getDeliveriesWithoutCourier(Long page, Long size);
+
     DeliveryResponse getDelivery(Long deliveryId);
 
     Delivery getDelivery(DeliveryEntity deliveryEntity);
@@ -26,6 +30,5 @@ public interface DeliveryService {
 
     DeliveryResponse updateBillingDelivery(Long deliveryId, UpdateBillingDelivery updateBillingDelivery);
 
-   // DeliveryResponse executeBilling(Long deliveryId, BillingInfo billingInfo);
 
 }

@@ -10,6 +10,7 @@ import java.util.Date;
 @Data
 public class UpdateDeliveryRequest {
     private Long Id;
+    private Long CourierId;
     private String Name;
     private Double Width;
     private Double Weight;

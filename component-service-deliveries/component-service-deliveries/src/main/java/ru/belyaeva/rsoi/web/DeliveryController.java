@@ -24,7 +24,7 @@ public class DeliveryController {
         return deliveryServiceImpl.createDelivery(request);
     }
 
-    @RequestMapping(value = "/{userId}/{page}/{size}", method = RequestMethod.GET)
+    @RequestMapping(value = "user/{userId}/{page}/{size}", method = RequestMethod.GET)
     @ResponseBody
     public DeliveryListResponse getDeliveries(
             @PathVariable("userId") Long userId,
@@ -32,6 +32,25 @@ public class DeliveryController {
             @PathVariable("size") Long size) {
 
         return deliveryServiceImpl.getDeliveries(userId, page, size);
+    }
+
+    @RequestMapping(value = "courier/{courierId}/{page}/{size}", method = RequestMethod.GET)
+    @ResponseBody
+    public DeliveryListResponse getDeliveriesOfCourier(
+            @PathVariable("courierId") Long courierId,
+            @PathVariable("page") Long page,
+            @PathVariable("size") Long size) {
+
+        return deliveryServiceImpl.getDeliveriesOfCourier(courierId, page, size);
+    }
+
+    @RequestMapping(value = "courier/null/{page}/{size}", method = RequestMethod.GET)
+    @ResponseBody
+    public DeliveryListResponse getDeliveriesWithoutCourier(
+            @PathVariable("page") Long page,
+            @PathVariable("size") Long size) {
+
+        return deliveryServiceImpl.getDeliveriesWithoutCourier(page, size);
     }
 
     @RequestMapping(value = "/{deliveryId}", method = RequestMethod.GET)

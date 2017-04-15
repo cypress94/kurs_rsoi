@@ -20,19 +20,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     DeliveryRepository deliveryRepository;
-    // + | -
-    /*
-    public BillingResponse getBillingFromDelivery(DeliveryEntity deliveryEntity)
-    {
-        BillingResponse billingResponse = new BillingResponse();
-        BillingEntity billingEntity = deliveryEntity.getBilling();
 
-        billingResponse.setBillingTime(billingEntity.getBillingTime());
-        billingResponse.setSummary(billingEntity.getSummary());
-        billingResponse.setMeansPayment(billingEntity.getMeansPayment());
-
-        return billingResponse;
-    }*/
     // + | -
     @SneakyThrows
     @Override
@@ -60,6 +48,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         delivery.setId(deliveryEntity.getId());
         delivery.setUserId(deliveryEntity.getUserId());
+        delivery.setCourierId(deliveryEntity.getCourierId());
         delivery.setName(deliveryEntity.getName());
         delivery.setWeight(deliveryEntity.getWeight());
         delivery.setWidth(deliveryEntity.getWidth());
@@ -86,6 +75,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         deliveryEntity.setBilling(null);
         deliveryEntity.setUserId(request.getUserId());
+        deliveryEntity.setCourierId(null);
         deliveryEntity.setPaid(false);
         deliveryEntity.setName(request.getName());
         deliveryEntity.setWeight(request.getWeight());
@@ -131,7 +121,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (deliveryEntity == null) {
             throw new EntityNotFoundException("Delivery with id = " + delivery.getId() + " is not found");
         }
-
+        deliveryEntity.setCourierId(delivery.getCourierId());
         deliveryEntity.setName(delivery.getName());
         deliveryEntity.setWeight(delivery.getWeight());
         deliveryEntity.setWidth(delivery.getWidth());
@@ -186,37 +176,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return deliveryResponse;
 
     }
-    /*
-    // + | -
-    @SneakyThrows
-    @Override
-    public DeliveryResponse executeBilling(Long deliveryId, BillingInfo billingInfo) {
-        DeliveryEntity deliveryEntity = deliveryRepository.findOne(deliveryId);
 
-        if (deliveryEntity == null) {
-            throw new EntityNotFoundException("Delivery with id = " + deliveryId + " is not found");
-        }
-        if (deliveryEntity.getPaid()){
-            throw new Exception("Delivery with id = " + deliveryId + " has already paid");
-        }
-
-        BillingEntity billingEntity = deliveryEntity.getBilling();
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
-        Date date = new Date();
-        billingEntity.setMeansPayment(billingInfo.getMeansPayment());
-        billingEntity.setSummary(billingInfo.getSummary());
-        billingEntity.setBillingTime(dateFormat.format(date)); //2014/08/06 15:59:48
-        billingRepository.save(billingEntity);
-        deliveryEntity.setBilling(billingEntity);
-        deliveryEntity.setPaid(true);
-        deliveryRepository.save(deliveryEntity);
-
-        DeliveryResponse deliveryResponse = new DeliveryResponse();
-        deliveryResponse.setCode(true);
-        deliveryResponse.setMessage("");
-        deliveryResponse.setDelivery(getDelivery(deliveryEntity));
-        return deliveryResponse;
-    }*/
     // + | -
     @Override
     public DeliveryListResponse getDeliveries(Long userId, Long page, Long size) {
@@ -224,6 +184,53 @@ public class DeliveryServiceImpl implements DeliveryService {
         Long from = page * size - size;
 
         List<DeliveryEntity> deliveryEntities = deliveryRepository.findByUserId(userId);
+        List<Delivery> deliveries = new ArrayList<>();
+        List<DeliveryEntity> newDeliveryEntitites=  deliveryEntities.stream()
+                .sorted(Comparator.comparingLong(DeliveryEntity::getId))
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
+
+        for (DeliveryEntity deliveryEntity : newDeliveryEntitites){
+            Delivery delivery = getDelivery(deliveryEntity);
+            deliveries.add(delivery);
+        }
+        DeliveryListResponse response = new DeliveryListResponse();
+        response.setCode(true);
+        response.setDeliveries(deliveries);
+        return response;
+    }
+
+    // + | -
+    @Override
+    public DeliveryListResponse getDeliveriesOfCourier(Long courierId, Long page, Long size) {
+
+        Long from = page * size - size;
+
+        List<DeliveryEntity> deliveryEntities = deliveryRepository.findByCourierId(courierId);
+        List<Delivery> deliveries = new ArrayList<>();
+        List<DeliveryEntity> newDeliveryEntitites=  deliveryEntities.stream()
+                .sorted(Comparator.comparingLong(DeliveryEntity::getId))
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
+
+        for (DeliveryEntity deliveryEntity : newDeliveryEntitites){
+            Delivery delivery = getDelivery(deliveryEntity);
+            deliveries.add(delivery);
+        }
+        DeliveryListResponse response = new DeliveryListResponse();
+        response.setCode(true);
+        response.setDeliveries(deliveries);
+        return response;
+    }
+
+    @Override
+    public DeliveryListResponse getDeliveriesWithoutCourier(Long page, Long size) {
+
+        Long from = page * size - size;
+
+        List<DeliveryEntity> deliveryEntities = deliveryRepository.findByCourierId(null);
         List<Delivery> deliveries = new ArrayList<>();
         List<DeliveryEntity> newDeliveryEntitites=  deliveryEntities.stream()
                 .sorted(Comparator.comparingLong(DeliveryEntity::getId))

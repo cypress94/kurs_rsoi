@@ -22,6 +22,9 @@
 <body>
 <th:block layout:fragment="content">
     <h1>Заказ</h1>
+    <div class="hero-unit">
+        <p><span th:if="${haveMessage}" ><span th:text="${Message}"/></p>
+    </div>
 
     <dl class="dl-horizontal">
         <dt>Имя посылки:</dt>
@@ -42,17 +45,14 @@
         <dd><span th:text="${delivery.addressFinish}">адрес</span></dd>
         <dt>Описание:</dt>
         <dd><span th:text="${delivery.description}">описание</span></dd>
-        <dt>Статус:</dt>
+        <dt>Статус оплаты:</dt>
         <dd><span th:if="${delivery.paid}" >оплачено</span></dd>
         <dd><span th:if="${delivery.paid == false}" >не оплачено</span></dd>
+        <dt>Статус обслуживания:</dt>
+        <dd><span th:if="${delivery.CourierId == null}" >не обслуживается</span></dd>
+        <dd><span th:if="${delivery.CourierId != null}" >обслуживается</span></dd>
     </dl>
 
-   <!-- <table>
-        <tr data-th-each="track : ${delivery.tracks}">
-            <td data-th-text="${track.dateMessage}">...</td>
-            <td data-th-text="${track.trackMessage}">...</td>
-        </tr>
-    </table>-->
     <hr color="green" size="5">
     <hr>
     <div  class="span6" th:if="${haveTracks}">
@@ -61,25 +61,24 @@
         <dl  data-th-each="track : ${delivery.tracks}">
             <dt data-th-text="${track.dateMessage}">...</dt>
             <dd data-th-text="${track.trackMessage}">...</dd>
-               <!-- <textarea id="redex" maxlength="10" rows="4"></textarea>
-                <style type="text/css">
-                    #redex { resize: none; }
-                </style>-->
 
         </dl>
     </div>
-<!--
-    <div th:if="${haveBilling == false}">
-        <a class="btn btn-link" th:href="@{delivery/${delivery.id}/billing}">
-            <i class="fa fa-plane" aria-hidden="true"></i>
-    </div>
--->
+
     <div class="hero-unit">
         <p>Стоимость посылки  <span th:text="${cost}"/></p>
     </div>
-    <div class="text-center" th:if="${haveBilling == false}">
-        <input class="btn btn-default" type="submit"/>
+ <!--   <div class="text-center" th:if="${haveBilling == false}">
         <a href="#" th:href="@{/delivery/{deliveryId}/billing(deliveryId=${delivery.id})}" class="btn btn-default">Оплатить</a>
+    </div>-->
+    <div class="text-center" th:if="${isCourier == false}">
+        <a href="#" th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
+        <a th:if="${haveBilling == false}" th:href="@{/delivery/{deliveryId}/billing(deliveryId=${delivery.id})}" class="btn btn-default">Оплатить</a>
+    </div>
+    <div class="text-center" th:if="${isCourier == true}">
+        <a href="#" th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
+        <a th:if="${delivery.CourierId == userId}" th:href="@{/delivery/{deliveryId}/track/create(deliveryId=${delivery.id})}" class="btn btn-default">Создать информационное сообщение</a>
+        <a th:if="${delivery.CourierId == null}" th:href="@{/delivery/{deliveryId}/reserved(deliveryId=${delivery.id})}" class="btn btn-default">Зарезервировать заказ на обслуживание</a>
     </div>
 </th:block>
 </body>

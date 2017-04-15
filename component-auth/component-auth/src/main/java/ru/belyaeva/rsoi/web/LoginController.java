@@ -41,7 +41,9 @@ public class LoginController {
 
             ModelAndView nmav = new ModelAndView("profile");
             nmav.addObject("name", fullInfoUser.getFirstNameReal());
-            nmav.addObject("email", fullInfoUser.getEmail());
+            nmav.addObject("mail", fullInfoUser.getEmail());
+            nmav.addObject("clientId",fullInfoUser.getClientId() );
+            nmav.addObject("clientSecret", fullInfoUser.getClientSecret());
             return nmav;
     }
 

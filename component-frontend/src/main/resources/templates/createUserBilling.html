@@ -19,42 +19,41 @@
 </head>
 <body>
 <th:block layout:fragment="content">
-    <h1>Заказ</h1>
+    <h1>Регистрация карты</h1>
 <div class="wrapper">
     <form class="form-horizontal auth-data"
           th:action="@{user/registration}" th:object="${user}" method="post">
-        <h2 class="text-center" th:text="#{auth.registration}"></h2>
         <fieldset>
 
             <div class="form-group">
                 <label for="meansPayment" class="hidden"></label>
                 <input id="meansPayment" type="text"  class="form-control" name="meansPayment"
-                       th:placeholder="#{auth.meanspayment}" th:field="*{meansPayment}"
+                       th:placeholder="Тип_карты" th:field="*{meansPayment}"
                        required="" autofocus=""/>
             </div>
             <div class="form-group">
                 <label for="cardNumber" class="hidden"></label>
                 <input id="cardNumber" type="text" class="form-control" name="cardNumber"
-                       th:placeholder="#{auth.cardnumber}" th:field="*{cardNumber}"
+                       th:placeholder="Номер_карты" th:field="*{cardNumber}"
                        required=""/>
             </div>
 
             <div class="form-group">
                 <label for="CVV" class="hidden"></label>
                 <input id="CVV" type="text" class="form-control" name="CVV"
-                       th:placeholder="#{auth.cvv}" th:field="*{CVV}"
+                       th:placeholder="CVV" th:field="*{CVV}"
                        required=""/>
             </div>
 
             <div class="form-group">
                 <label for="Summary" class="hidden"></label>
                 <input id="Summary" type="text" class="form-control" name="Summary"
-                       th:placeholder="#{auth.Summary}" th:field="*{Summary}"
+                       th:placeholder="Сумма_на_карте" th:field="*{Summary}"
                        required=""/>
             </div>
 
             <div class="text-center">
-                <input class="btn btn-default" type="submit" th:value="#{auth.registration}"/>
+                <input class="btn btn-default" type="submit" th:value="Зарегестрировать"/>
             </div>
         </fieldset>
     </form>

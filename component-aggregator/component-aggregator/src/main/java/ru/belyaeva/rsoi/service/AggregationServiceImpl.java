@@ -31,6 +31,32 @@ public class AggregationServiceImpl implements AggregationService {
 
     @SneakyThrows
     @Override
+    public Boolean getUserType(String token)
+    {
+        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
+        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
+        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
+            throw new IllegalAccessException("Token isn`t valid");
+        }
+
+        // проверка на курьера
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        return userInfoResponse.getIsCourier();
+    }
+    @SneakyThrows
+    @Override
+    public Long getUserId( String token)
+    {
+        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
+        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
+        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
+            throw new IllegalAccessException("Token isn`t valid");
+        }
+        return checkTokenResponse.getUserId();
+    }
+
+    @SneakyThrows
+    @Override
     public Delivery createDelivery(String token, Delivery delivery) {
         CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
         CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
@@ -45,6 +71,7 @@ public class AggregationServiceImpl implements AggregationService {
       //      return null;
 
         CreateDeliveryRequest createDeliveryRequest = new CreateDeliveryRequest();
+
         createDeliveryRequest.setUserId(checkTokenResponse.getUserId());
         createDeliveryRequest.setName(delivery.getName());
         createDeliveryRequest.setWeight(delivery.getWeight());
@@ -66,6 +93,52 @@ public class AggregationServiceImpl implements AggregationService {
 
     @SneakyThrows
     @Override
+    public DeliveryFull reservedDeliveryByCourier(String token, Long deliveryId)
+    {
+        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
+        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
+        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
+            throw new IllegalAccessException("Token isn`t valid");
+        }
+        DeliveryResponse deliveryResponse = httpSender.getDeliveryInfo(URL_SERVICE_DELIVERIES + "/"+ String.valueOf(deliveryId));
+        if (!deliveryResponse.getCode()) {
+            throw new Exception(deliveryResponse.getMessage());
+        }
+
+        Delivery delivery = deliveryResponse.getDelivery();
+        // проверка на курьера
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+
+         if (isCourier)
+        {// обновляем данные заказа (а именно обновляем поле курьера)
+            delivery.setCourierId(checkTokenResponse.getUserId());
+
+            UpdateDeliveryRequest updateDeliveryRequest = new UpdateDeliveryRequest();
+            updateDeliveryRequest.setId(deliveryId);
+            updateDeliveryRequest.setCourierId(delivery.getCourierId());
+            updateDeliveryRequest.setName(delivery.getName());
+            updateDeliveryRequest.setWeight(delivery.getWeight());
+            updateDeliveryRequest.setWidth(delivery.getWidth());
+            updateDeliveryRequest.setHeight(delivery.getHeight());
+            updateDeliveryRequest.setDeep(delivery.getDeep());
+            updateDeliveryRequest.setTimeDelivery(delivery.getTimeDelivery());
+            updateDeliveryRequest.setAddressStart(delivery.getAddressStart());
+            updateDeliveryRequest.setAddressFinish(delivery.getAddressFinish());
+            updateDeliveryRequest.setDescription(delivery.getDescription());
+
+            deliveryResponse = httpSender.updateDelivery(URL_SERVICE_DELIVERIES + "/"+ String.valueOf(deliveryId), updateDeliveryRequest);
+            return getDelivery(token, deliveryId);// возвращаем обновленный заказ
+        }else{
+             DeliveryResponse deliveryResponse1 = new DeliveryResponse();
+             deliveryResponse1.setCode(false);
+             deliveryResponse1.setMessage("User isn't courier");
+             return null;
+         }
+    }
+
+    @SneakyThrows
+    @Override
     public DeliveryFull getDelivery(String token, Long id) {
         CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
         CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
@@ -79,8 +152,14 @@ public class AggregationServiceImpl implements AggregationService {
         }
         DeliveryFull deliveryFull = new DeliveryFull();
         Delivery delivery = deliveryResponse.getDelivery();
-        // Проверка на принадлежность заказа пользователю
-        if (delivery.getUserId() != checkTokenResponse.getUserId())
+
+        // проверка на курьера
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+
+
+        // Проверка на принадлежность заказа обычному пользователю
+        if (!isCourier && delivery.getUserId() != checkTokenResponse.getUserId())
         {// ошибка, у пользователя нет такого заказа
             deliveryFull.setCode(false);
             deliveryFull.setMessage("access error");
@@ -99,10 +178,7 @@ public class AggregationServiceImpl implements AggregationService {
                     tracks.add(trackResponse);
                 }
             }
-           /* ProductListResponse productListResponse = httpSender.getProducts(URL_SERVICE_PRODUCTS + GET_PRODUCT, longIdListRequest);
-            if (!productListResponse.getCode()) {
-                throw new Exception(productListResponse.getMessage());
-            }*/
+
             deliveryFull.setTracks(tracks);
         }
         if (delivery.getBilling() != null) {
@@ -116,6 +192,7 @@ public class AggregationServiceImpl implements AggregationService {
         }
         deliveryFull.setId(delivery.getId());
         deliveryFull.setUserId(delivery.getUserId());
+        deliveryFull.setCourierId(delivery.getCourierId());
         deliveryFull.setPaid(delivery.getPaid());
         deliveryFull.setName(delivery.getName());
         deliveryFull.setWeight(delivery.getWeight());
@@ -179,80 +256,59 @@ public class AggregationServiceImpl implements AggregationService {
         return trackResponse;
     }
 
-/*
+
     @SneakyThrows
     @Override
-    public St ring getProducts(String token, Long page, Long size) {
-        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
-        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
-        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
-            throw new IllegalAccessException("Token isn`t valid");
-        }
-        String Response =
-                httpSender.getProducts(URL_SERVICE_PRODUCTS + "/" + page + "/" + size);
-        logger.info("get Product");
-        return Response;
-    }
-*/
-    @SneakyThrows
-    @Override
-    public List<Delivery> getDeliveries(String token, Long page, Long size) {
+    public List<Delivery> getDeliveriesOfUser(String token, Long page, Long size) {
         CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
         CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
         if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
             throw new IllegalAccessException("Token isn`t valid");
         }
         Long userId = checkTokenResponse.getUserId();
-        DeliveryListResponse deliveryListResponse =
-                httpSender.getDeliveries(URL_SERVICE_DELIVERIES + "/" + userId + "/" + page + "/" + size);
-
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+        DeliveryListResponse deliveryListResponse;
+        if (isCourier)
+        {// взятие заказов текущего курьера
+            deliveryListResponse = httpSender.getDeliveries(URL_SERVICE_DELIVERIES + "/courier/" + userId + "/" + page + "/" + size);
+        }else
+        {// взятие заказов текущего пользователя
+            deliveryListResponse = httpSender.getDeliveries(URL_SERVICE_DELIVERIES + "/user/" + userId + "/" + page + "/" + size);
+        }
         if (!deliveryListResponse.getCode())
             throw new Exception("get Deliveries");
+
         return deliveryListResponse.getDeliveries();
 
     }
 
-    /*
     @SneakyThrows
     @Override
-    public Delivery updateOrder(Long orderId, String sellerName, String shopName, String token) {
+    public List<Delivery> getDeliveriesWithoutCourier(String token, Long page, Long size) {
         CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
         CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
         if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
             throw new IllegalAccessException("Token isn`t valid");
         }
-        UpdateDeliveryRequest updateOrderRequest = new UpdateDeliveryRequest();
-        updateOrderRequest.setOrderId(orderId);
-        updateOrderRequest.setShopName(shopName);
-        updateOrderRequest.setSellerName(sellerName);
+        Long userId = checkTokenResponse.getUserId();
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+        DeliveryListResponse deliveryListResponse;
+        if (isCourier)
+        {// взятие заказов текущего курьера
+            deliveryListResponse = httpSender.getDeliveries(URL_SERVICE_DELIVERIES + "/courier/null/" + page + "/" + size);
+        }else
+        {
+            return null;// ошибка прав доступа
+        }
+        if (!deliveryListResponse.getCode())
+            throw new Exception("get Deliveries");
 
-        DeliveryResponse deliveryResponse = httpSender.updateOrder(URL_SERVICE_ORDERS + "/" + orderId, updateOrderRequest);
-        if (!deliveryResponse.getCode()) {
-            throw new Exception(deliveryResponse.getMessage());
-        }
-        logger.info("update Delivery");
-        return deliveryResponse.getOrder();
+        return deliveryListResponse.getDeliveries();
+
     }
-    */
-/*
-    @SneakyThrows
-    @Override
-    public void putToOrder(Long orderId, Long goodId, String token) {
-        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
-        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
-        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
-            throw new IllegalAccessException("Token isn`t valid");
-        }
-        // проверка существования товара
-        TrackResponse trackResponse = httpSender.getProduct(URL_SERVICE_PRODUCTS + "/" + goodId.toString());
-        if (trackResponse == null || !trackResponse.getCode()) {
-            throw new Exception("Товар №" + goodId.toString() + "не существует");
-        }
-        // его добавление
-        httpSender.putToOrder(URL_SERVICE_ORDERS + "/" + orderId + "/" + goodId);
-        logger.info("put Product to Delivery");
-    }
-*/
+
     @SneakyThrows
     @Override
     public void deleteTrack(String token, Long deliveryId, Long trackId) {
@@ -321,44 +377,6 @@ public class AggregationServiceImpl implements AggregationService {
         Double Cost = 300.0;
         return Cost;
     }
-
-   /* @SneakyThrows
-    @Override
-    public DeliveryFull executeBilling(Long deliveryId, String token) {
-        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
-
-        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
-        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
-            throw new IllegalAccessException("Token isn`t valid");
-        }
-        // загрузка товаров
-        DeliveryFull deliveryFull = getOrder(token, orderId);
-        if (deliveryFull == null)
-            throw new Exception("Ошибка billing. Невозможно загрузить заказ");
-        if (deliveryFull.getPaid() == null || deliveryFull.getPaid())
-            return deliveryFull;
-        // подсчёт суммы чека
-        List<TrackResponse> products = deliveryFull.getProducts();
-        Double summary = 0.0;
-        for (TrackResponse prod : products) {
-            if (prod != null)
-                summary += prod.getPrice();
-        }
-        // установка в БД
-        BillingInfo billingInfo = new BillingInfo();
-        billingInfo.setSummary(summary);
-        billingInfo.setMeansPayment(meansPayment);
-        DeliveryResponse deliveryResponse = httpSender.executeBillingOrder(URL_SERVICE_ORDERS + "/" + orderId + BILLING, billingInfo);
-        if (!deliveryResponse.getCode()) {
-            throw new Exception(deliveryResponse.getMessage());
-        }
-        Delivery delivery = deliveryResponse.getOrder();
-        deliveryFull.setPaid(delivery.getPaid());
-        deliveryFull.setBilling(delivery.getBilling());
-
-        logger.info("create Billing");
-        return deliveryFull;
-    }*/
 
     public void Autorization(String redirect_uri, String response_type, String client_id )
     {

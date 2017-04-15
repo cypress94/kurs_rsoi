@@ -11,6 +11,8 @@ import java.util.Date;
 public class UpdateDeliveryRequest {
     private Long Id;
     private String Name;
+    private Long   CourierId;
+
     private Double Width;
     private Double Weight;
     private Double Height;

@@ -11,6 +11,7 @@ import java.util.List;
 public class DeliveryFull {
     private Long Id;
     private Long UserId;
+    private Long CourierId;
     private Boolean Paid;
     private BillingResponse Billing;
     private List<TrackResponse> Tracks;

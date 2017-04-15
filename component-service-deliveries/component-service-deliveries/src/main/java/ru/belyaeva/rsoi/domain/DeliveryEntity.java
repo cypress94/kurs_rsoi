@@ -27,6 +27,9 @@ public class DeliveryEntity {
     @Column(name = "userid")
     private Long userId;
 
+    @Column(name = "courierid")
+    private Long courierId;
+
     @JoinColumn(name = "billing")
     private Long Billing;
 

@@ -91,21 +91,7 @@ public class AggregationController {
 
         aggregationService.deleteTrack(token, deliveryId, trackId);
     }
-/*
-    @RequestMapping(value = "/products",
-            method = RequestMethod.GET)
-    @ResponseBody
-    public String getProducts(
-            @RequestParam(value = "page") Long page,
-            @RequestParam(value = "size") Long size,
-            @RequestHeader(value = "Authorization") String token) {
 
-        if (page == 0 || size == 0) {
-            throw new IllegalArgumentException("Page and size can`t be 0");
-        }
-        return aggregationService.getProducts(token, page, size);
-    }
-*/
     @RequestMapping(value = "/deliveries",
             method = RequestMethod.GET)
     @ResponseBody
@@ -117,21 +103,32 @@ public class AggregationController {
         if (page == 0 || size == 0) {
             throw new IllegalArgumentException("Page and size can`t be 0");
         }
-        return aggregationService.getDeliveries(token, page, size);
+        return aggregationService.getDeliveriesOfUser(token, page, size);
     }
-/*
-    @RequestMapping(value = "/order/{id}",
-            method = RequestMethod.POST)
+
+    @RequestMapping(value = "/deliveries/courier/null",
+            method = RequestMethod.GET)
     @ResponseBody
-    public Delivery updateOrder(
-            @PathVariable("id") Long orderId,
-            @RequestParam(value = "seller_name") String sellerName,
-            @RequestParam(value = "shop_name") String shopName,
+    public List<Delivery> getDeliveriesWithoutCourier(
+            @RequestParam(value = "page") Long page,
+            @RequestParam(value = "size") Long size,
             @RequestHeader(value = "Authorization") String token) {
 
-        return aggregationService.updateOrder(orderId, sellerName, shopName, token);
+        if (page == 0 || size == 0) {
+            throw new IllegalArgumentException("Page and size can`t be 0");
+        }
+        return aggregationService.getDeliveriesWithoutCourier(token, page, size);
     }
-*/
+    @RequestMapping(value = "/delivery/{id}",
+            method = RequestMethod.POST)
+    @ResponseBody
+    public DeliveryFull reservedDeliveryByCourier(
+            @PathVariable("id") Long deliveryId,
+            @RequestHeader(value = "Authorization") String token) {
+
+        return aggregationService.reservedDeliveryByCourier(token, deliveryId);
+    }
+
 
     @RequestMapping(value = "billing/user/create", method = RequestMethod.POST)
     @ResponseBody
@@ -169,6 +166,24 @@ public class AggregationController {
             @RequestHeader(value = "Authorization") String token) {
 
         return aggregationService.getCostOfDelivery(deliveryId, token);
+    }
+
+    @RequestMapping(value = "/user/type",
+            method = RequestMethod.GET)
+    @ResponseBody
+    public Boolean getUserType(
+            @RequestHeader(value = "Authorization") String token) {
+
+        return aggregationService.getUserType( token);
+    }
+
+    @RequestMapping(value = "/user/id",
+            method = RequestMethod.GET)
+    @ResponseBody
+    public Long getUserId(
+            @RequestHeader(value = "Authorization") String token) {
+
+        return aggregationService.getUserId( token);
     }
 
 

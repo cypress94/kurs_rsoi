@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ваши заказы</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"
+          rel="stylesheet" media="screen"/>
+    <link href="../static/css/core.css"
+          th:href="@{/css/core.css}"
+          rel="stylesheet" media="screen"/>
+    <script src="http://cdn.jsdelivr.net/webjars/jquery/2.2.1/jquery.min.js"
+            th:src="@{/webjars/jquery/2.2.1/jquery.min.js}"></script>
+
+</head>
+<body>
+<th:block layout:fragment="content">
+    <h1>Ваши заказы</h1>
+
+    <hr color="green" size="5">
+    <hr>
+    <div  class="span6" th:if="${haveDeliveries}">
+
+       <!-- <dl  data-th-each="delivery : ${deliveries}">
+            <dt href="#" th:href="@{../../../../../delivery/{deliveryId}(deliveryId=${delivery.id})}" data-th-text="${delivery.name}" ></dt>
+            <dd data-th-text="${delivery.description}">...</dd>
+            <dd th:href="@{../../../../../delivery/{deliveryId}(deliveryId=${delivery.id})}" > </dd>
+
+        </dl>-->
+
+        <table>
+            <tr>
+                <th>Название</th>
+                <th>Описание</th>
+                <th></th>
+            </tr>
+            <tr th:each="delivery : ${deliveries}" >
+                <td th:text="${delivery.name}" th:width="150"></td>
+                <td th:text="${delivery.description}" th:width="450" th:height="50"></td>
+                <td><a th:href="@{../../../../../delivery/{deliveryId}(deliveryId=${delivery.id})}" th:width="150">Подробное описание</a></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="text-center" th:if="${isCourier == false}">
+        <a th:href="@{/delivery/create}" class="btn btn-default">Создать новый заказ</a>
+    </div>
+    <div class="text-center" th:if="${isCourier == true}">
+        <a th:href="@{/deliveries/courier/null/page/1/size/3}" class="btn btn-default">Взять новый заказ</a>
+    </div>
+</th:block>
+</body>
+</html>
