@@ -209,6 +209,53 @@ public class AggregationServiceImpl implements AggregationService {
         logger.info("get Delivery");
         return deliveryFull;
     }
+    @SneakyThrows
+    @Override
+    public BaseResponse deleteDelivery(String token, Long deliveryId){
+        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
+        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
+        if (checkTokenResponse == null || !checkTokenResponse.getValidToken()) {
+            throw new IllegalAccessException("Token isn`t valid");
+        }
+
+        DeliveryResponse deliveryResponse = httpSender.getDeliveryInfo(URL_SERVICE_DELIVERIES + "/"+ String.valueOf(deliveryId));
+        if (!deliveryResponse.getCode()) {
+            throw new Exception(deliveryResponse.getMessage());
+        }
+        BaseResponse baseResponse = new BaseResponse();
+        Delivery delivery = deliveryResponse.getDelivery();
+
+        // проверка на курьера
+        UserInfoResponse userInfoResponse = httpSender.getUser(URL_GET_USER_INFO, token);
+        Boolean isCourier = userInfoResponse.getIsCourier();
+
+        // Проверка на принадлежность заказа обычному пользователю
+        if (!isCourier && delivery.getUserId() != checkTokenResponse.getUserId())
+        {// ошибка, у пользователя нет такого заказа
+            baseResponse.setErrorCode(false);
+            baseResponse.setErrorMessage("access error");
+            return baseResponse;
+        }
+        // удаление сообщений к заказу
+        if (delivery.getTracks() != null && !delivery.getTracks().isEmpty()) {
+            LongIdListRequest longIdListRequest = new LongIdListRequest();
+            longIdListRequest.setIds(deliveryResponse.getDelivery().getTracks());
+
+            for (Long id_track: longIdListRequest.getIds()) {
+                httpSender.deleteTrack(URL_SERVICE_TRACKS + "/" + id_track);
+            }
+        }
+        // удаление платёжной информации заказа
+        if (delivery.getBilling() != null) {
+            httpSender.deleteBilling(URL_SERVICE_BILLINGS + "/user/" + checkTokenResponse.getUserId() + "/billing/" + delivery.getBilling());
+        }
+
+        httpSender.deleteDelivery(URL_SERVICE_DELIVERIES + "/"+ String.valueOf(deliveryId));
+        baseResponse.setErrorCode(true);
+        baseResponse.setErrorMessage("");
+        return baseResponse;
+
+    }
 
     @SneakyThrows
     @Override
@@ -352,6 +399,37 @@ public class AggregationServiceImpl implements AggregationService {
         ///user/{userId}/create
         user.setUserId(checkTokenResponse.getUserId());
         BaseResponse baseResponse =  httpSender.createUserBilling(URL_SERVICE_BILLINGS + "/user/" + checkTokenResponse.getUserId() +"/create", user );
+        return baseResponse;
+    }
+    @SneakyThrows
+    @Override
+    public BaseResponse returnBilling(Long deliveryId, String token){
+        CheckTokenRequest checkTokenRequest = new CheckTokenRequest(token);
+        CheckTokenResponse checkTokenResponse = httpSender.checkToken(URL_CHECK_TOKEN, checkTokenRequest);
+        BaseResponse baseResponse = new BaseResponse();
+
+        DeliveryResponse deliveryResponse = httpSender.getDeliveryInfo(URL_SERVICE_DELIVERIES + "/"+ String.valueOf(deliveryId));
+        if (deliveryResponse == null || !deliveryResponse.getCode())
+        {
+            baseResponse.setErrorCode(false);
+            baseResponse.setErrorMessage("error");
+            return baseResponse;
+        }
+        Delivery delivery = deliveryResponse.getDelivery();
+        baseResponse = httpSender.returnBilling(URL_SERVICE_BILLINGS +"/user/" + checkTokenResponse.getUserId() + "/billing/" + delivery.getBilling());
+        if (baseResponse == null || !baseResponse.getErrorCode())
+        {
+            baseResponse.setErrorCode(false);
+            baseResponse.setErrorMessage("error");
+            return baseResponse;
+        }
+        UpdateBillingDelivery updateBillingDelivery = new UpdateBillingDelivery();
+        updateBillingDelivery.setPaid(false);
+        updateBillingDelivery.setBillingId(null);
+        httpSender.updateBillingDelivery(URL_SERVICE_DELIVERIES + "/" + deliveryId + "/billing", updateBillingDelivery);
+
+        baseResponse.setErrorCode(true);
+        baseResponse.setErrorMessage("");
         return baseResponse;
     }
 

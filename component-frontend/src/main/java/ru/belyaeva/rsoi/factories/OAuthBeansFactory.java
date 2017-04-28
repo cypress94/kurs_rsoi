@@ -11,8 +11,8 @@ public class OAuthBeansFactory {
         oAuth2Bean.setAccessType("online");
         oAuth2Bean.setAuthEndpoint("http://localhost:8080/oauth2/authorization");
         oAuth2Bean.setTokenEndpoint("http://localhost:8080/oauth2/token");
-        oAuth2Bean.setClientId("1002185765"); // 1002185765
-        oAuth2Bean.setClientSecret("sec1002185765");
+        oAuth2Bean.setClientId("1191773281"); // 1002185765
+        oAuth2Bean.setClientSecret("sec1191773281");
         oAuth2Bean.setRedirectEndpoint("http://localhost:8081/profilemyauth");
         oAuth2Bean.setScope("profile");
         oAuth2Bean.setResponseType("code");

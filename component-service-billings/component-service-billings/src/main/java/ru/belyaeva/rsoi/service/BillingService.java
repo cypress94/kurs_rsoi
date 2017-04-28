@@ -12,5 +12,6 @@ public interface BillingService {
     BillingResponse executeBilling(Double cost, Long userId);
     BillingResponse getBilling(Long userId, Long billingId);
     BaseResponse createUserBilling(UserBillingInfo userBillingInfo);
-
+    BaseResponse returnBilling(Long userId, Long billingId);
+    BaseResponse deleteBilling(Long billingId);
 }

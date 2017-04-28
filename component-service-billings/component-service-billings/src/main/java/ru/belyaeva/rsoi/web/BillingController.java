@@ -40,6 +40,22 @@ public class BillingController {
         return billingServiceImpl.createUserBilling(user);
     }
 
+    @RequestMapping(value = "/user/{userId}/billing/{billingId}", method = RequestMethod.POST)
+    @ResponseBody
+    public BaseResponse returnBilling(
+
+            @PathVariable ("userId") Long userId,
+            @PathVariable ("billingId") Long billingId) {
+        return billingServiceImpl.returnBilling(userId, billingId);
+    }
+
+    @RequestMapping(value = "/user/{userId}/billing/{billingId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public BaseResponse deleteBilling(
+            @PathVariable ("userId") Long userId,
+            @PathVariable ("billingId") Long billingId) {
+        return billingServiceImpl.deleteBilling(billingId);
+    }
 
 
 }

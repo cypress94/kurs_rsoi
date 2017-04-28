@@ -30,5 +30,5 @@ public interface DeliveryService {
 
     DeliveryResponse updateBillingDelivery(Long deliveryId, UpdateBillingDelivery updateBillingDelivery);
 
-
+    BaseResponse deleteDelivery(Long deliveryId);
 }

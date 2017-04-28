@@ -104,9 +104,8 @@ public class BillingServiceImpl implements BillingService {
         Double CommonSummary = userEntity.getSummary();
         if (CommonSummary < cost) // недостаток средств оплаты
         {
-            billingResponse.setBilling(null);
             billingResponse.setCode(false);
-            billingResponse.setMessage("Insufficient funds in the account");
+            billingResponse.setMessage("error summary");
             return billingResponse;
         }
         // изменение средств на счету пользователя
@@ -133,6 +132,47 @@ public class BillingServiceImpl implements BillingService {
         billingResponse.setMessage("");
         return billingResponse;
     }
+
+    public BaseResponse returnBilling(Long userId, Long billingId)
+    {
+        UserEntity userEntity = userRepository.findByUserId(userId);
+        if (userEntity == null)
+        {
+            BaseResponse baseResponse = new BaseResponse();
+
+            baseResponse.setErrorCode(false);
+            baseResponse.setErrorMessage("error user billing");
+            return baseResponse;
+        }
+        BillingEntity billingEntity = billingRepository.findById(billingId);
+        // возврат средств
+        userEntity.setSummary(userEntity.getSummary() + billingEntity.getSummary());
+        userRepository.save(userEntity);
+
+        // удаление факта оплаты
+        billingRepository.delete(billingId);
+        BaseResponse baseResponse = new BaseResponse();
+
+        baseResponse.setErrorCode(true);
+        baseResponse.setErrorMessage("");
+        return baseResponse;
+    }
+
+    public BaseResponse deleteBilling(Long billingId){
+        BillingEntity trackEntity = billingRepository.findOne(billingId);
+        if (trackEntity == null) {
+            throw new EntityNotFoundException("billing bot exist");
+        }
+        billingRepository.delete(billingId);
+
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(true);
+        baseResponse.setErrorMessage("");
+        return baseResponse;
+
+    }
+
+
 
 
 }

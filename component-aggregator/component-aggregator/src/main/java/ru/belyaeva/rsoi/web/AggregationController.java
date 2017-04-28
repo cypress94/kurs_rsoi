@@ -59,6 +59,16 @@ public class AggregationController {
         return aggregationService.getDelivery(token, orderId);
     }
 
+    @RequestMapping(value = "/delivery/{id}",
+            method = RequestMethod.DELETE)
+    @ResponseBody
+    public BaseResponse deleteDelivery(
+            @PathVariable("id") Long deliveryId,
+            @RequestHeader(value = "Authorization") String token) {
+
+        return aggregationService.deleteDelivery(token, deliveryId);
+    }
+
     @RequestMapping(value = "/track/{id}",
             method = RequestMethod.GET)
     @ResponseBody
@@ -156,6 +166,16 @@ public class AggregationController {
             @RequestHeader(value = "Authorization") String token) {
 
         return aggregationService.executeBilling(deliveryId, token);
+    }
+
+    @RequestMapping(value = "/delivery/{id}/billing/return",
+            method = RequestMethod.POST)
+    @ResponseBody
+    public BaseResponse returnBilling(
+            @PathVariable("id") Long deliveryId,
+            @RequestHeader(value = "Authorization") String token) {
+
+        return aggregationService.returnBilling(deliveryId, token);
     }
 
     @RequestMapping(value = "/delivery/{id}/cost",

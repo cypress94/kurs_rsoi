@@ -78,6 +78,12 @@ public class DeliveryController {
             @RequestBody UpdateDeliveryRequest request) {
         return deliveryServiceImpl.updateDelivery(request);
     }
+    @RequestMapping(value = "/{deliveryId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public BaseResponse deleteDelivery(
+            @PathVariable("deliveryId") Long deliveryId) {
+        return deliveryServiceImpl.deleteDelivery(deliveryId);
+    }
 
     @RequestMapping(value = "/{deliveryId}/tracks/{trackId}", method = RequestMethod.POST)
     @ResponseBody

@@ -73,16 +73,19 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
     </div>
 <th:block layout:fragment="content">
-  <div class="hero-unit">
-    <h1>Успешная авторизация</h1>
-    <p>
+    <div class="hero-unit">
+        <h1>Успешная авторизация</h1>
+        <p>
         Здравствуйте  <span th:text="${name}"/>,<hr>
         Ваша почта <span th:text="${email}"/>
-    </p>
-  </div>
-    <div class="text-center">
-        <a href="#" th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
+
+        </p>
+        <div class="text-center">
+            <a th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
+        </div>
     </div>
+
+
 </th:block>
 
 </body>

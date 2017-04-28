@@ -8,4 +8,6 @@ import ru.belyaeva.rsoi.domain.BillingEntity;
  */
 public interface BillingRepository extends CrudRepository<BillingEntity, Long> {
     BillingEntity findById(Long Id);
+
+    void delete(Long Id);
 }

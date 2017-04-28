@@ -59,8 +59,7 @@ public class TestControler {
         return new ModelAndView("index");
     }
 
-    // laba2
-    @RequestMapping(value = "/getMyAuth", produces = "application/json", method = RequestMethod.GET)
+    @RequestMapping(value = "/auth", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin
     @ResponseBody
     public ModelAndView getMyAuth() {
@@ -76,7 +75,6 @@ public class TestControler {
 
     }
 
-    // laba2
     @RequestMapping(value = "/profilemyauth", produces = "application/json", method = RequestMethod.GET)
     @CrossOrigin
     @ResponseBody
@@ -596,17 +594,101 @@ public class TestControler {
             nmav.addObject("errormessage", "ошибка сервера");
             return nmav;
         }
-        if (!billingResponse.getCode()/*&& billingResponse.getMessage() == "error user billing"*/)
+        String mes = billingResponse.getMessage();
+
+        if (!billingResponse.getCode() && mes.equals("error user billing"))
         {// пользователь не зарегестрирован в системе оплаты
             ModelAndView nmav = createUserBilling();
             return nmav;
         }
 
+        if (!billingResponse.getCode() && mes.equals("error summary"))
+        {
+                ModelAndView nmav = new ModelAndView("errorBillingPage");
+                return nmav;
+        }
+
         ModelAndView nmav = new ModelAndView("billingPage");
+        nmav.addObject("isExecute", true);
         nmav.addObject("billingTime", billingResponse.getBilling().getBillingTime());
 
         nmav.addObject("cost", getCost(deliveryId));
         return nmav;
+    }
+    @RequestMapping(value = "/delivery/{deliveryId}/billing/return", produces = "application/json", method = RequestMethod.GET)
+    @CrossOrigin
+    @ResponseBody
+    public ModelAndView returnBilling(
+            @PathVariable("deliveryId") Long deliveryId)
+            throws ServletException, IOException{
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
+        OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/delivery/" + deliveryId + "/billing/return");
+
+        HttpURLConnection httpURLConnection =
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "post");
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        logger.info("Request to remote system to set order user with access token: {}", accessToken);
+
+        String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Track create: Server error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        BaseResponse baseResponse = objectMapper.convertValue(node, BaseResponse.class);
+        if (baseResponse == null || !baseResponse.getErrorCode() ){
+            logger.info("get delivery: error of server");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+        ModelAndView nmav = new ModelAndView("billingPage");
+        nmav.addObject("isExecute", false);
+        return nmav;
+    }
+
+    @RequestMapping(value = "/delivery/{deliveryId}/del", produces = "application/json", method = RequestMethod.GET)
+    @CrossOrigin
+    @ResponseBody
+    public ModelAndView deleteDelivery(
+            @PathVariable("deliveryId") Long deliveryId)
+            throws ServletException, IOException{
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        OAuthBeansFactory oAuthBeansFactory = new OAuthBeansFactory();
+        OAuth2Bean oAuth2Bean = oAuthBeansFactory.createOAuth2BeanMine();
+        oAuth2Bean.setProfileEndpoint("http://localhost:8090/delivery/" + deliveryId);
+
+        HttpURLConnection httpURLConnection =
+                connectionFactory.createHttpConnection(oAuth2Bean.getProfileEndpoint(), "delete");
+        httpURLConnection.setRequestProperty("Authorization", "Bearer " + accessToken);
+        logger.info("Request to remote system to set order user with access token: {}", accessToken);
+
+        String profileResponse = http.readFromHttpConnection(httpURLConnection);
+        if (profileResponse == null || profileResponse == "") {
+            logger.info("Track create: Server error");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode node = objectMapper.readTree( profileResponse );
+        BaseResponse baseResponse = objectMapper.convertValue(node, BaseResponse.class);
+        if (baseResponse == null || !baseResponse.getErrorCode() ){
+            logger.info("get delivery: error of server");
+            ModelAndView nmav = new ModelAndView("serverError");
+            nmav.addObject("errormessage", "ошибка сервера");
+            return nmav;
+        }
+        Long page = new Long (1);
+        Long size = new Long (3);
+        return getDeliveries(page, size);
     }
 
 

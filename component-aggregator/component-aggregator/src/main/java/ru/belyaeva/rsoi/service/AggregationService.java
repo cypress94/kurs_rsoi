@@ -36,6 +36,8 @@ import java.util.List;
 public interface AggregationService {
     //+
     DeliveryFull getDelivery(String token, Long id);
+    //
+    BaseResponse deleteDelivery(String token, Long deliveryId);
     //+
     Delivery createDelivery(String token, Delivery delivery);
     //+
@@ -56,6 +58,8 @@ public interface AggregationService {
     void deleteTrack(String token, Long deliveryId, Long trackId);
     //+
     BillingResponse executeBilling(Long deliveryId, String token);
+    //
+    BaseResponse returnBilling(Long deliveryId, String token);
     //
     BaseResponse createUserBilling(UserBillingInfo user, String token);
     //+

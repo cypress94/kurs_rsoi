@@ -63,7 +63,18 @@ public class HttpSender {
     }
 
     public BillingResponse getBilling(String url){
+
         return restTemplate.getForObject(url, BillingResponse.class);
+    }
+
+    public BaseResponse returnBilling(String url){
+        return restTemplate.postForObject(url, null, BaseResponse.class);
+    }
+    public void deleteBilling(String url){
+        restTemplate.delete(url);
+    }
+    public void deleteDelivery(String url){
+        restTemplate.delete(url);
     }
     public BaseResponse createUserBilling(String url, UserBillingInfo userBillingInfo){
         return restTemplate.postForObject(url, userBillingInfo, BaseResponse.class);

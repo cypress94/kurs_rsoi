@@ -1,0 +1,3 @@
+mvn package && java -jar target/component-aggregator-1.0.0-SNAPSHOT.jar
+docker run -p 8090:8090 -t oksidgy/component-aggregator
+mvn package docker:build -DpushImage

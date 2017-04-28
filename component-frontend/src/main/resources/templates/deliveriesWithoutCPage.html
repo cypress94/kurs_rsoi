@@ -35,9 +35,9 @@
                 <th></th>
             </tr>
             <tr th:each="delivery : ${deliveries}" >
-                <td th:text="${delivery.name}" th:width="150"></td>
-                <td th:text="${delivery.description}" th:width="450" th:height="50"></td>
-                <td th:text="${delivery.timeDelivery}" th:width="150"></td>
+                <td th:text="${#strings.replace(delivery.name, '_', ' ')}" th:width="150"></td>
+                <td th:text="${#strings.replace(delivery.description, '_', ' ')}" th:width="450" th:height="50"></td>
+                <td th:text="${#strings.replace(delivery.timeDelivery, '_', ' ')}" th:width="150"></td>
                 <td><a th:href="@{../../../../../../../delivery/{deliveryId}(deliveryId=${delivery.id})}" th:width="150">Подробное описание</a></td>
             </tr>
         </table>

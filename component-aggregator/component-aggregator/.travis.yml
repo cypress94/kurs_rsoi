@@ -1,0 +1,17 @@
+sudo: required
+
+language: java
+
+node_js:
+  - "6.2.2"
+
+services:
+  - docker
+
+install:
+  - docker run -d --name tomcat tomcat
+  - docker run -d --name postgres -e "POSTGRES_USER=postgres" -e "POSTGRES_PASSWORD=postgres" -e "POSTGRES_DB=kurs_aggr" postgres:9.5.3
+  - docker build -t my_app_component_aggregator src/main/docker
+
+script:
+  - docker run --link tomcat:tomcat --link postgres:postgres my_app_component_aggregator /bin/sh 

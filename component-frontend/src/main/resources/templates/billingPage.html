@@ -38,15 +38,26 @@
 </div>
 <!-- Insert content into the layouts/layout.html -->
 <th:block layout:fragment="content">
-    <div class="hero-unit">
+    <div class="hero-unit" th:if="${isExecute}">
+
         <p>
         <h2>Оплата прошла успешно<h2>
         <p>
             Время оплаты  <span th:text="${billingTime}"/>,<hr>
             на сумму <span th:text="${cost}"/> рублей.
 
-        <p><a href="#" th:href="@{getIndex}" class="btn btn-large btn-success">Back to login</a></p>
+        <div class="text-center">
+            <a th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
+        </div>
 
+    </div>
+    <div class="hero-unit" th:if="${isExecute == false}">
+
+        <h2>Возврат средств произведен успешно<h2>
+
+        <div class="text-center">
+            <a th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
+        </div>
     </div>
 
 </th:block>

@@ -28,7 +28,7 @@
 
     <dl class="dl-horizontal">
         <dt>Имя посылки:</dt>
-        <dd><span th:text="${delivery.name}">посылка</span></dd>
+        <dd><span th:text="${#strings.replace(delivery.name, '_', ' ')}">посылка</span></dd>
         <dt>Вес(кг):</dt>
         <dd><span th:text="${delivery.weight}">вес</span></dd>
         <dt>Ширина(м):</dt>
@@ -38,13 +38,13 @@
         <dt>Глубина(м):</dt>
         <dd><span th:text="${delivery.deep}">глубина</span></dd>
         <dt>Время доставки:</dt>
-        <dd><span th:text="${delivery.timeDelivery}">время доставки</span></dd>
+        <dd><span th:text="${#strings.replace(delivery.timeDelivery, '_', ' ')}">время доставки</span></dd>
         <dt th:width="100" idth>Адрес (начального пункта):</dt>
-        <dd><span th:text="${delivery.addressStart}">адрес</span></dd>
+        <dd><span th:text="${#strings.replace(delivery.addressStart, '_', ' ')}">адрес</span></dd>
         <dt>Адрес (конечного пункта):</dt>
-        <dd><span th:text="${delivery.addressFinish}">адрес</span></dd>
+        <dd><span th:text="${#strings.replace(delivery.addressFinish, '_', ' ')}">адрес</span></dd>
         <dt>Описание:</dt>
-        <dd><span th:text="${delivery.description}">описание</span></dd>
+        <dd><span th:text="${#strings.replace(delivery.description, '_', ' ')}">описание</span></dd>
         <dt>Статус оплаты:</dt>
         <dd><span th:if="${delivery.paid}" >оплачено</span></dd>
         <dd><span th:if="${delivery.paid == false}" >не оплачено</span></dd>
@@ -60,7 +60,7 @@
 
         <dl  data-th-each="track : ${delivery.tracks}">
             <dt data-th-text="${track.dateMessage}">...</dt>
-            <dd data-th-text="${track.trackMessage}">...</dd>
+            <dd data-th-text="${#strings.replace(track.trackMessage, '_', ' ')}">...</dd>
 
         </dl>
     </div>
@@ -74,6 +74,12 @@
     <div class="text-center" th:if="${isCourier == false}">
         <a href="#" th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>
         <a th:if="${haveBilling == false}" th:href="@{/delivery/{deliveryId}/billing(deliveryId=${delivery.id})}" class="btn btn-default">Оплатить</a>
+        <p>
+
+
+        </p>
+        <a th:if="${haveBilling == true}" th:href="@{/delivery/{deliveryId}/billing/return(deliveryId=${delivery.id})}" class="btn btn-default">Отмена оплаты</a>
+        <a th:href="@{/delivery/{deliveryId}/del(deliveryId=${delivery.id})}" class="btn btn-default">Удалить заказ</a>
     </div>
     <div class="text-center" th:if="${isCourier == true}">
         <a href="#" th:href="@{/deliveries/page/1/size/3}" class="btn btn-default">К заказам</a>

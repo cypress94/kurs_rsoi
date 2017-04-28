@@ -112,6 +112,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         deliveryResponse.setCode(true);
         return deliveryResponse;
     }
+    @Override
+    public BaseResponse deleteDelivery(Long deliveryId)
+    {
+        DeliveryEntity deliveryEntity = deliveryRepository.findOne(deliveryId);
+
+        if (deliveryEntity == null){
+            throw new EntityNotFoundException("Delivery with id = " + deliveryId + "is not found");
+        }
+
+        deliveryRepository.delete(deliveryId);
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setErrorCode(true);
+        baseResponse.setErrorMessage("");
+        return baseResponse;
+    }
 
     // + | -
     @Override
